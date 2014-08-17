@@ -1,0 +1,28 @@
+body {
+	width: 90%;
+	padding-left: 5%;
+	padding-bottom: 5%;	
+}
+
+
+.title{
+	display: inline-block;
+}
+.date {
+	display: inline;
+	padding-left: 2%;
+	font-family: monospace;
+}
+
+.comments {
+	padding-left: 3%;
+}
+
+.nav {
+	display: inline-block;
+	padding-right: 3%;
+}
+
+.input {
+	width: 90%;
+}
