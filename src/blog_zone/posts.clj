@@ -23,7 +23,8 @@
 
 (defn get-post "returns a map of the post when passed a valid id"
 	[id] (first (jdbc/query database
-		(sql/select * :posts (sql/where {:id id})))))
+		["select u.username as username, p.title as title, p.body as body, p.updated_date as updated_date, p.created_date as created_date
+		from posts p left join users u on u.user_id = p.author where p.id = ?" id])))
 
 (defn next-post-id [id] (:id (first (jdbc/query database ["select min(id) as id from posts where id > ?" id]))))
 
@@ -39,10 +40,10 @@
 
 (defn save "updates a row in the posts table based on an id and new post map"
 	[id params] 
-	(jdbc/update! database :posts (merge {:updated_date now} params) (sql/where {:id id})))
+	(jdbc/update!   :posts (merge {:updated_date now} params) (sql/where {:id id})))
 
 (defn get-comments [post-id]
-	(jdbc/query database (sql/select * :comments (sql/where {:post_id post-id}))))
+	(jdbc/query database (sql/select * :comments (sql/where {:post_id post-id}) (sql/order-by {:created_date :asc}))))
 
 (defn get-userid "get the user id for a username or get a new user id if that user does not yet exist"
 	;;will probably have to change after some authentication is in place, friend
@@ -56,5 +57,8 @@
 	(jdbc/insert! database :comments (merge {:post_id post-id :created_date now :updated_date now :id (inc (maxmin-id :max "comments")) :user_id (get-userid (:username coment))} coment)))
 
 
+(defn get-user [user-id]
+	(first (jdbc/query database ["select username, join_date from users where user_id = ?" user-id])))
 
-
+(defn get-addr [user-id]
+	(first (jdbc/query database ["select street_1, street_2, city, state, zip  from addresses where user_id = ?" user-id])))

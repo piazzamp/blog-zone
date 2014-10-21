@@ -6,15 +6,17 @@
 		[ring.util.response :as response]
 		[ring.middleware.basic-authentication :as auth]
 		[blog-zone.views :as views]
-		[blog-zone.posts :as posts]))
+		[blog-zone.posts :as posts]
+		[blog-zone.auth :as bauth]))
 
-(defn authenticated? [uname passwd] (and (= uname "username")(= passwd "a g00d password")))
+;(defn authenticated? [uname passwd] (and (= uname "username")(= passwd "a g00d password")))
 
 (defroutes public-routes
 	(GET "/" [] (views/home))
 	(GET "/:id" [id] (views/view-post id))
 	(GET "/:id/comment" [id] (views/add-comment id))
 	(POST "/:id" [id & coment] (do (posts/save-comment id coment) (response/redirect (str "/" id "#comments"))))
+	(GET "/users/:id" [id] (views/view-user id))
 	(route/resources "/"))
 
 (defroutes protected-routes
@@ -30,7 +32,7 @@
 
 (defroutes app-routes
 	public-routes
-	(auth/wrap-basic-authentication protected-routes authenticated?)
+	(auth/wrap-basic-authentication protected-routes bauth/authenticated?)
 	(route/not-found "Not Found"))
 
 (def app

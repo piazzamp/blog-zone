@@ -53,6 +53,7 @@
 				(form/text-field "title" "title") [:br][:br]
 				(form/text-area {:rows 8 :class "input"} "body" "body") [:br]
 				(form/submit-button {:class "btn btn-defualt"} "shoot")
+				;;abort button doesn't abort!
 				[:button {:href admin-url :style "color:inherit;" :class "btn btn-default"} "abort"]))))
 
 (defn edit-post [id]
@@ -60,9 +61,8 @@
 		(layout (str blog-name " | edit post")
 			 (list [:h2 (post :title)]
 			 		(form/form-to [:post (str admin-url "/" id "/save")]
-			 		(form/label "title" "Title")
-			 		(form/text-field "title" (post :title)) [:br]
-					(form/label "body" "Body") [:br]
+			 		(form/text-field {:class "input"} "title" (post :title)) [:br]
+					[:br]
 					(form/text-area {:rows 8 :class "input"} "body" (post :body)) [:br]
 					[:button {:type "submit" :class "btn btn-defualt"} "save"])
 			 [:a {:href admin-url :style "text-decoration:none;" :class "btn btn-default"} "cancel"]))))
@@ -70,9 +70,10 @@
 
 
 (defn view-post [id]
-	(if-let [{:keys [title body updated_date]} (posts/get-post id)]
+	(if-let [{:keys [title body updated_date username]} (posts/get-post id)]
 		(layout (str blog-name " | " title)
-			[:h1 (str blog-name "  |  " title)]
+			[:h1 (str blog-name "  |  " title " by " username)]
+			[:p [:b username]]
 			[:p {:style "font-family:monospace;"} updated_date] 
 			[:a.nav {:href "/"} "home"] 
 ;; consider using glyphicons or someting similar for this nav section
@@ -99,4 +100,12 @@
 			(form/text-area {:rows 5, :cols 80} "body" "comment")
 			[:br]
 			[:button {:type "submit" :class "btn btn-defualt"} "save"])))
+
+(defn view-user [user-id]
+	(layout "check this guy out"
+		(if-let [{:keys [username join_date]} (posts/get-user user-id)]
+			[:section [:h1 username] [:p "joined " join_date][:hr]])
+		(if-let [{:keys [street_1 street_2 city state zip]} (posts/get-addr user-id)]
+			[:p street_1 [:br] street_2 [:br] city [:br] state ", " zip]
+			)))
 
