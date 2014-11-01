@@ -10,5 +10,6 @@
 	:zeroDateTimeBehavior "convertToNull"})
 
 (defn authenticated? [uname passwd]
-	(let [cont (:cont (first (jdbc/query database ["select count(*) as cont from users where username=? and password=password(?)" uname passwd])))]
-	(= 1 cont)))
+	(do (print (str "authenticating user " uname " using password " passwd))
+	(let [cont (:cont (first (jdbc/query database ["select count(*) as cont from users where username=? and password=password(?) and user_id in (select user_id from admins);" uname passwd])))]
+	(= 1 cont))))
