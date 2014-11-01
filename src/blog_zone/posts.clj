@@ -40,7 +40,7 @@
 
 (defn save "updates a row in the posts table based on an id and new post map"
 	[id params] 
-	(jdbc/update!   :posts (merge {:updated_date now} params) (sql/where {:id id})))
+	(jdbc/update! database :posts (merge {:updated_date now} params) (sql/where {:id id})))
 
 (defn get-comments [post-id]
 	(jdbc/query database (sql/select * :comments (sql/where {:post_id post-id}) (sql/order-by {:created_date :asc}))))
@@ -56,6 +56,8 @@
 	;;check for required fields here?
 	(jdbc/insert! database :comments (merge {:post_id post-id :created_date now :updated_date now :id (inc (maxmin-id :max "comments")) :user_id (get-userid (:username coment))} coment)))
 
+(defn delete-comment [comment-id]
+	(jdbc/delete! database :comments (sql/where {:id comment-id})))
 
 (defn get-user [user-id]
 	(first (jdbc/query database ["select username, join_date from users where user_id = ?" user-id])))

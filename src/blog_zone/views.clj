@@ -21,11 +21,17 @@
 		[:section.post-heading [:h3.title [:a {:href (str "/" id)} (hiccup/h title)]] [:p.date (hiccup/h created_date)]]
 		[:section (hiccup/h body)] [:hr]]))
 
-(defn display-comment [{:keys [post_id comemnt_id body updated_date username] :as coment}]
+(defn display-comment [{:keys [post_id id body updated_date username] :as coment}]
 	[:section.comments [:h5.title (hiccup/h username)] [:p.date updated_date]
 	[:p (hiccup/h body)]])
 
-(defn home [] (layout blog-name
+(defn admin-display-comment [{:keys [post_id id body updated_date username] :as coment}]
+	 [:section (display-comment coment)
+	 [:a {:href (str "comment/" id "/delete") :style "padding-left:3%;"} "kill"]])
+
+(defn home [] 
+	(print "accessing home")
+	(layout blog-name
 	[:h1 blog-name]
 	(map user-post-summary (posts/all))))
 ;; add a footer, maybe peek at RPMS for hints
@@ -52,9 +58,9 @@
 			(form/form-to [:post (str admin-url "/create")]
 				(form/text-field "title" "title") [:br][:br]
 				(form/text-area {:rows 8 :class "input"} "body" "body") [:br]
-				(form/submit-button {:class "btn btn-defualt"} "shoot")
+				(form/submit-button {:class "btn btn-defualt"} "shoot"))
 				;;abort button doesn't abort!
-				[:button {:href admin-url :style "color:inherit;" :class "btn btn-default"} "abort"]))))
+				[:a {:href admin-url} [:button {:style "color:inherit;" :class "btn btn-default"} "abort"]])))
 
 (defn edit-post [id]
 	(let [post (posts/get-post id)]
@@ -65,7 +71,9 @@
 					[:br]
 					(form/text-area {:rows 8 :class "input"} "body" (post :body)) [:br]
 					[:button {:type "submit" :class "btn btn-defualt"} "save"])
-			 [:a {:href admin-url :style "text-decoration:none;" :class "btn btn-default"} "cancel"]))))
+			 [:a {:href admin-url :style "text-decoration:none;" :class "btn btn-default"} "cancel"])
+			 [:hr][:h3 "trolls in teh dungeon"]
+			 (map admin-display-comment (posts/get-comments id)))))
 ;; TO-DO: admin should be able to delete comments from this view?
 
 

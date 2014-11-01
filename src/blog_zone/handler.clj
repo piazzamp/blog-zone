@@ -20,15 +20,21 @@
 	(route/resources "/"))
 
 (defroutes protected-routes
-	(GET "/admin" [] (views/admin-blog-page))
-	(GET "/admin/add" [] (views/add-post))
-	(GET "/admin/:id/delete" [id] 
-		(do (posts/delete id) (response/redirect "/admin")))
-	(GET "/admin/:id/edit" [id] (views/edit-post id))
-	(POST "/admin/create" [& params] 
-		(do (posts/create params) (response/redirect "/admin")))
-	(POST "/admin/:id/save" [id & params]
-		(do (posts/save id params) (response/redirect "/admin"))))
+	(context "/admin" []
+		(GET "/" [] (views/admin-blog-page))
+		(GET "/add" [] (views/add-post))
+		(context "/:pid" [pid]
+				(GET "/delete" [pid]
+					(do (posts/delete pid) (response/redirect "/admin")))
+				(GET "/edit" [pid] (views/edit-post pid))
+				(GET "/comment/:cid/delete" [cid] 
+					(do (posts/delete-comment cid) (response/redirect (str "/admin/" pid "/edit"))))
+				(POST "/save" [& params]
+					(do (posts/save pid params) (response/redirect "/admin"))))
+
+		(POST "/create" [& params] 
+			(do (posts/create params) (response/redirect "/admin")))
+	))
 
 (defroutes app-routes
 	public-routes

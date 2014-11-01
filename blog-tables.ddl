@@ -36,8 +36,8 @@ create table comments (
 		on delete cascade);
 
 create table users (
-	username varchar(255),
-	user_id int primary key auto_increment, -- should make this a guuid?
+	username varchar(255) not null unique,
+	user_id int primary key auto_increment, -- should make this a guuid? (plus trigger for checklist item)
 	password char(41),
 	join_date datetime);
 

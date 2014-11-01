@@ -11,7 +11,7 @@ Getting started with Clojure web applications is about a thousand times faster
 than Java, even (especially?) when using a Java framework.
 
 ####TO-DOs
- + add ability for admins to delete or moderate comments
+ + ~~add ability for admins to delete or moderate comments~~
  + add footer
  + finish comments (add comment page, see all comments by user, etc)
  + favicon!
