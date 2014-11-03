@@ -26,3 +26,22 @@ body {
 .input {
 	width: 90%;
 }
+
+.user-info {
+	float: left;
+}
+.user-address {
+	margin-left: 30%;
+	padding-top: 1.8%
+}
+
+.left {
+	float:left;
+	width:50%;
+	padding-right: 5%;
+}
+
+.right {
+	margin-left: 50%;
+	padding-top: .5%; 
+}

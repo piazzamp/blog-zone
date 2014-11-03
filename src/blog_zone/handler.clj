@@ -16,7 +16,7 @@
 	(GET "/:id" [id] (views/view-post id))
 	(GET "/:id/comment" [id] (views/add-comment id))
 	(POST "/:id" [id & coment] (do (posts/save-comment id coment) (response/redirect (str "/" id "#comments"))))
-	(GET "/users/:id" [id] (views/view-user id))
+	(GET "/u/:id" [id] (views/view-user id))
 	(route/resources "/"))
 
 (defroutes protected-routes

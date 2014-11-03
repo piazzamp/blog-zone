@@ -1,6 +1,7 @@
 (ns blog-zone.posts
 	(:require [clojure.java.jdbc :as jdbc]
-		[java-jdbc.sql :as sql]))
+		[java-jdbc.sql :as sql]
+		[clojure.tools.logging :as log]))
 
 (def now (str (java.sql.Timestamp. (System/currentTimeMillis))))
 
@@ -23,8 +24,13 @@
 
 (defn get-post "returns a map of the post when passed a valid id"
 	[id] (first (jdbc/query database
-		["select u.username as username, p.title as title, p.body as body, p.updated_date as updated_date, p.created_date as created_date
-		from posts p left join users u on u.user_id = p.author where p.id = ?" id])))
+		["select u.username as username, p.title as title, p.body as body, p.updated_date as updated_date, p.created_date as created_date,
+		p.author as user_id from posts p left join users u on u.user_id = p.author where p.id = ?" id])))
+
+(defn get-posts-by-user "get all the posts by one user"
+	[id]
+	(log/info (sql/select * :posts (sql/where {:author id}) (sql/order-by {:updated_date :desc})))
+	(jdbc/query database (sql/select * :posts (sql/where {:author id}) (sql/order-by {:updated_date :desc}))))
 
 (defn next-post-id [id] (:id (first (jdbc/query database ["select min(id) as id from posts where id > ?" id]))))
 
@@ -44,6 +50,10 @@
 
 (defn get-comments [post-id]
 	(jdbc/query database (sql/select * :comments (sql/where {:post_id post-id}) (sql/order-by {:created_date :asc}))))
+
+(defn get-comments-by-user "retrieve all of a user's comments"
+	[id] 
+	(jdbc/query database (sql/select * :comments (sql/where {:user_id id}))))
 
 (defn get-userid "get the user id for a username or get a new user id if that user does not yet exist"
 	;;will probably have to change after some authentication is in place, friend

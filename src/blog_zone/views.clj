@@ -78,21 +78,21 @@
 
 
 (defn view-post [id]
-	(if-let [{:keys [title body updated_date username]} (posts/get-post id)]
+	(if-let [{:keys [title body updated_date username user_id]} (posts/get-post id)]
 		(layout (str blog-name " | " title)
-			[:h1 (str blog-name "  |  " title " by " username)]
-			[:p [:b username]]
-			[:p {:style "font-family:monospace;"} updated_date] 
-			[:a.nav {:href "/"} "home"] 
+			[:h1 [:a {:href "/" :style "color:Black;"} blog-name] "  |  " title " by " [:a {:href (str "/u/" user_id)} username]]
+			[:p {:style "font-family:monospace;"} updated_date]
+			[:a.nav {:href "/"} [:span {:class "glyphicon glyphicon-home"}]] 
 ;; consider using glyphicons or someting similar for this nav section
 			(let [id-num (Integer/parseInt id)]
 				[:span
 				(if-let [prev (posts/prev-post-id id-num)] 
-					[:a.nav {:href (str "/" prev)} "previous"] 
+					[:a.nav {:href (str "/" prev)} [:span {:class "glyphicon glyphicon-arrow-left"}]]
 					[:span.nav "this is the earliest post!"])
 				(if-let [nxt (posts/next-post-id id-num)] 
-					[:a.nav {:href (str "/" nxt)} "next"] 
+					[:a.nav {:href (str "/" nxt)} [:span {:class "glyphicon glyphicon-arrow-right"}]] 
 					[:span.nav "this is the latest post"])])
+			[:br][:br]
 			[:p (hiccup/h body)]
 			[:hr]
 			[:a {:href (str id "/comment#comments"), :name "comments"} "comment"]
@@ -112,8 +112,10 @@
 (defn view-user [user-id]
 	(layout "check this guy out"
 		(if-let [{:keys [username join_date]} (posts/get-user user-id)]
-			[:section [:h1 username] [:p "joined " join_date][:hr]])
+			[:section.user-info [:h1 username] [:p "joined " join_date]])
 		(if-let [{:keys [street_1 street_2 city state zip]} (posts/get-addr user-id)]
-			[:p street_1 [:br] street_2 [:br] city [:br] state ", " zip]
-			)))
+			[:section.user-address [:p street_1 [:br] street_2 [:br] city [:br] state ", " zip]])
+		[:hr]
+		[:section.left [:h3 "posts"] [:br] (map user-post-summary (posts/get-posts-by-user user-id))]
+		[:section.right [:h3 "comments"] [:br] (map display-comment (posts/get-comments-by-user user-id))]))
 

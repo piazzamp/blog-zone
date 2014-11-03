@@ -9,7 +9,9 @@
 		[mysql/mysql-connector-java "5.1.25"]
     [com.cemerick/friend "0.2.1"]
     ;; v pls remove v
-		[ring-basic-authentication "1.0.5"]]
+		[ring-basic-authentication "1.0.5"]
+    [org.clojure/tools.logging "0.3.1"]]
+
   :plugins [[lein-ring "0.8.11"]]
   :ring {:handler blog-zone.handler/app}
   :profiles
