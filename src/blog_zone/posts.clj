@@ -62,6 +62,16 @@
 		uid ;; then
 		(inc (:user_id (first (jdbc/query database ["select max(user_id) as user_id from comments"]))))))
 
+(defn like-post "add a like to a post using the name in the auth header and the passed post-id"
+	[id headers]
+	(log/info (str headers))
+	(log/info (str (headers :authorization)))
+	(jdbc/insert! database :post_likes {:post_id id, :user_id (headers :authorization)}))
+
+(defn get-likes "get vector of users who like a post"
+	[id]
+	(jdbc/query database (sql/select :user_id :post_likes)))
+
 (defn save-comment [post-id coment]
 	;;check for required fields here?
 	(jdbc/insert! database :comments (merge {:post_id post-id :created_date now :updated_date now :id (inc (maxmin-id :max "comments")) :user_id (get-userid (:username coment))} coment)))

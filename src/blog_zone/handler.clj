@@ -13,9 +13,13 @@
 
 (defroutes public-routes
 	(GET "/" [] (views/home))
-	(GET "/:id" [id] (views/view-post id))
-	(GET "/:id/comment" [id] (views/add-comment id))
-	(POST "/:id" [id & coment] (do (posts/save-comment id coment) (response/redirect (str "/" id "#comments"))))
+	(context "/:id" [id]
+		(GET "/" [] (views/view-post id))
+		(GET "/like" request (do (posts/like-post id (request :headers)) (response/redirect "/")))
+		;(GET "/like" request (request :headers)))
+		(GET "/comment" [] (views/add-comment id))
+		(POST "/" [& coment] (do (posts/save-comment id coment) (response/redirect (str "/" id "#comments"))))
+	) ;; close ':id' context
 	(GET "/u/:id" [id] (views/view-user id))
 	(route/resources "/"))
 
@@ -23,15 +27,14 @@
 	(context "/admin" []
 		(GET "/" [] (views/admin-blog-page))
 		(GET "/add" [] (views/add-post))
-		(context "/:pid" [pid]
-				(GET "/delete" [pid]
-					(do (posts/delete pid) (response/redirect "/admin")))
-				(GET "/edit" [pid] (views/edit-post pid))
-				(GET "/comment/:cid/delete" [cid] 
-					(do (posts/delete-comment cid) (response/redirect (str "/admin/" pid "/edit"))))
-				(POST "/save" [& params]
-					(do (posts/save pid params) (response/redirect "/admin"))))
-
+		(context "/:pid" [pid] 
+			(GET "/delete" [pid]
+				(do (posts/delete pid) (response/redirect "/admin")))
+			(GET "/edit" [pid] (views/edit-post pid))
+			(GET "/comment/:cid/delete" [cid] 
+				(do (posts/delete-comment cid) (response/redirect (str "/admin/" pid "/edit"))))
+			(POST "/save" [& params]
+				(do (posts/save pid params) (response/redirect "/admin"))))
 		(POST "/create" [& params] 
 			(do (posts/create params) (response/redirect "/admin")))
 	))

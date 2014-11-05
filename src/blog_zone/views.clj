@@ -19,18 +19,19 @@
 ;;TO-DO: figure out how to easily destructure maps and bind keywords to symbols
 	[:section
 		[:section.post-heading [:h3.title [:a {:href (str "/" id)} (hiccup/h title)]] [:p.date (hiccup/h created_date)]]
-		[:section (hiccup/h body)] [:hr]]))
+		[:section (hiccup/h body)] 
+		[:a {:href (str "/" id "/like")} "like"]
+		[:hr]]))
 
 (defn display-comment [{:keys [post_id id body updated_date username] :as coment}]
 	[:section.comments [:h5.title (hiccup/h username)] [:p.date updated_date]
 	[:p (hiccup/h body)]])
 
 (defn admin-display-comment [{:keys [post_id id body updated_date username] :as coment}]
-	 [:section (display-comment coment)
-	 [:a {:href (str "comment/" id "/delete") :style "padding-left:3%;"} "kill"]])
+	 [:section.kill (display-comment coment)
+	 [:a.comments {:href (str "comment/" id "/delete")} "kill"]])
 
 (defn home [] 
-	(print "accessing home")
 	(layout blog-name
 	[:h1 blog-name]
 	(map user-post-summary (posts/all))))
@@ -74,8 +75,6 @@
 			 [:a {:href admin-url :style "text-decoration:none;" :class "btn btn-default"} "cancel"])
 			 [:hr][:h3 "trolls in teh dungeon"]
 			 (map admin-display-comment (posts/get-comments id)))))
-;; TO-DO: admin should be able to delete comments from this view?
-
 
 (defn view-post [id]
 	(if-let [{:keys [title body updated_date username user_id]} (posts/get-post id)]
@@ -83,7 +82,6 @@
 			[:h1 [:a {:href "/" :style "color:Black;"} blog-name] "  |  " title " by " [:a {:href (str "/u/" user_id)} username]]
 			[:p {:style "font-family:monospace;"} updated_date]
 			[:a.nav {:href "/"} [:span {:class "glyphicon glyphicon-home"}]] 
-;; consider using glyphicons or someting similar for this nav section
 			(let [id-num (Integer/parseInt id)]
 				[:span
 				(if-let [prev (posts/prev-post-id id-num)] 
@@ -95,6 +93,9 @@
 			[:br][:br]
 			[:p (hiccup/h body)]
 			[:hr]
+			(let [likes (posts/get-likes id)]
+				[:p "likes: " likes]
+				[:p (count likes) " likes overall"])
 			[:a {:href (str id "/comment#comments"), :name "comments"} "comment"]
 			(map display-comment (posts/get-comments id)))))
 

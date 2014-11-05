@@ -12,6 +12,12 @@ than Java, even (especially?) when using a Java framework.
 
 ####TO-DOs
  + ~~add ability for admins to delete or moderate comments~~
+ + add ability to like comments and posts
+ 	+ ~~anonymously~~
+ 	+ with identity
+ + normalize comments table and add appropriate joins
+ + add links from comments on a user-summary page back to the posts they refer to
+ + get username out of basc authentication header for adding posts and maybe comments
  + add footer
  + finish comments (add comment page, see all comments by user, etc)
  + favicon!

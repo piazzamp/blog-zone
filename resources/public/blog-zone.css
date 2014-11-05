@@ -16,6 +16,11 @@ body {
 
 .comments {
 	padding-left: 3%;
+	/*float: left;*/
+}
+
+.kill{
+	/*background-color: red;*/
 }
 
 .nav {
