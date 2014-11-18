@@ -1,13 +1,13 @@
-/*
-Here find the required (or default) ddl for the blog-zone database tables.
-They are in a mysql dialect to match my setup with the mysql jdbc connector used in
-blog-zone/posts.
-As you may be able to tell from the database var, I made these tables in a database
-(aka schema) called 'blog' with a specific application database user.
-Execute this script as the root user, identified by a blank password by default :(
-
-Matt Piazza, 19 OCT 2014
-*/
+/************************************
+ * Here find the required (or default) ddl for the blog-zone database tables.
+ * They are in a mysql dialect to match my setup with the mysql jdbc connector used in
+ * blog-zone/posts.
+ * As you may be able to tell from the database var, I made these tables in a database
+ * (aka schema) called 'blog' with a specific application database user.
+ * Execute this script as the root user, identified by a blank password by default :(
+ * 
+ * Matt Piazza, untested as of 17 NOV 2014
+ ************************************/
 
 create user app_user identified by 'put a password here';
 
@@ -19,9 +19,9 @@ create table posts (
 	id int primary key,
 	title varchar(255), 
 	body mediumtext, 
-	-- author int references users(user_id)
-	created_date datetime, 
-	updated_date datetime);
+	author char(16) references users(user_id),
+	created_date datetime default CURRENT_TIMESTAMP, 
+	updated_date datetime default CURRENT_TIMESTAMP);
 
 create table comments (
 	post_id int, 
@@ -37,8 +37,8 @@ create table comments (
 
 create table users (
 	username varchar(255) not null unique,
-	user_id int primary key auto_increment, -- should make this a guuid? (plus trigger for checklist item)
-	password char(41),
+	user_id char(16) primary key, -- guuid datatype, ready for trigger
+	password char(41) not null,
 	join_date datetime);
 
 create table admins (
@@ -62,6 +62,24 @@ create table post_likes (
 	post_id int references posts(post_id),
 	user_id int references users(user_id));
 
-grant all on blog.* to app_user;
+create trigger before_insert_user
+	before insert on users
+	for each row set new.user_id=UUID();
 
-commit;
+delimiter //
+create function max_post_id() 
+	returns int deterministic 
+	begin 
+		declare result int;
+		select max(id) into result from posts;
+		return result;
+	end;//
+
+create procedure save_post(in ititle varchar(255), in ibody mediumtext, in iauthor char(16))
+	begin 
+		insert into posts(title, body, author, id) values (ititle, ibody, iauthor, 1+max_post_id());
+	end;//
+
+grant all on blog.* to app_user//
+
+commit//

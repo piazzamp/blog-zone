@@ -16,6 +16,7 @@
 	[type table]
 	(if (#{"posts" "comments"} table) ;; check input against whitelist of tables
 		(cond 
+			(and (= type :max)(= (clojure.string/lower-case table) "posts")) (if-let [id (:id (first (jdbc/query database ["select max_post_id() as id"])))] id 0)
 			(= type :max) (if-let [id (:id (first (jdbc/query database [(str "select max(id) as id from " table)])))] id 0)
 			(= type :min) (if-let [id (:id (first (jdbc/query database [(str "select min(id) as id from " table)])))] id 0))))
 
@@ -38,7 +39,9 @@
 
 (defn create "takes a post map and inserts it into the posts table"
 	[params]
-	(jdbc/insert! database :posts (merge params {:created_date now :updated_date now :id (inc (maxmin-id :max "posts"))})))
+	;;(jdbc/insert! database :posts (merge params {:created_date now :updated_date now :id (inc (maxmin-id :max "posts"))}))
+	(log/info (str "calling procedure... " params))
+	(jdbc/db-do-prepared database "call save_post(?, ?, ?);" [(params :title),(params :body),(params :author)]))
 
 (defn delete "deletes a post from the posts table when give a valid id"
 	[id] (jdbc/delete! database :posts (sql/where {:id id})))
@@ -70,7 +73,7 @@
 
 (defn get-likes "get vector of users who like a post"
 	[id]
-	(jdbc/query database (sql/select :user_id :post_likes)))
+	(jdbc/query database (sql/select :user_id :post_likes (sql/where {:post_id id}))))
 
 (defn save-comment [post-id coment]
 	;;check for required fields here?

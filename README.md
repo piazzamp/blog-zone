@@ -15,11 +15,12 @@ than Java, even (especially?) when using a Java framework.
  + add ability to like comments and posts
  	+ ~~anonymously~~
  	+ with identity
+ + get username out of basc authentication header for adding posts and maybe comments
  + normalize comments table and add appropriate joins
  + add links from comments on a user-summary page back to the posts they refer to
- + get username out of basc authentication header for adding posts and maybe comments
+ + clean & DRY up [views.clj](src/blog_zone/views.clj)
  + add footer
- + finish comments (add comment page, see all comments by user, etc)
+ + ~~finish comments (add comment page, see all comments by user, etc)~~
  + favicon!
 
 ## Prerequisites
