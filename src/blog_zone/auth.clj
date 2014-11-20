@@ -4,7 +4,7 @@
 
 (def database {
 	:subprotocol "mysql"
-	:subname "//localhost:3306/blog"
+	:subname "//localhost:3306/blog2"
 	:user "app_user"
 	:password "STR0ngpassw5rd"
 	:zeroDateTimeBehavior "convertToNull"})

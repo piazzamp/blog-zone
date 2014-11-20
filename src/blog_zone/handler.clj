@@ -13,6 +13,7 @@
 
 (defroutes public-routes
 	(GET "/" [] (views/home))
+	(GET "/top" [] (views/top))
 	(context "/:id" [id]
 		(GET "/" [] (views/view-post id))
 		(GET "/like" request (do (posts/like-post id (request :headers)) (response/redirect "/")))

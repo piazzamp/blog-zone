@@ -34,7 +34,13 @@
 (defn home [] 
 	(layout blog-name
 	[:h1 blog-name]
+	[:h4 [:a {:href "/top"} "top posts"]]
 	(map user-post-summary (posts/all))))
+
+(defn top [] 
+	(layout blog-name
+		[:h1 [:a {:href "/"} blog-name] "'s top posts"]
+		(map user-post-summary (posts/top-posts))))
 ;; add a footer, maybe peek at RPMS for hints
 
 (defn admin-post-summary [post]

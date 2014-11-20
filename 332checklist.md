@@ -1,11 +1,11 @@
 checklist for csci332 final project
 ==========================
 
-+ User Views
-+ ~~Normalization~~
-+ ~~ER Diagram~~
++ ~~User Views~~ <-- who knows if this just means db views or what
++ ~~Normalization~~ 3NF?
++ ~~ER Diagram~~ [txt](er_diagram.txt) or [relationshipless png](er_diagram.png)
 + ~~Table DDL (minimum 7)~~
-+ View DDL (minimum 1)
++ ~~View DDL (minimum 1)~~
 + ~~Procedures DDL (minimum 1)~~
 + ~~Function DDL (minimum 1)~~
 + ~~Trigger DDL (minimum 1)~~

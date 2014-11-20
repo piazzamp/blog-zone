@@ -7,7 +7,7 @@
 
 (def database {
 	:subprotocol "mysql"
-	:subname "//localhost:3306/blog"
+	:subname "//localhost:3306/blog2"
 	:user "app_user"
 	:password "STR0ngpassw5rd"
 	:zeroDateTimeBehavior "convertToNull"})
@@ -22,6 +22,9 @@
 
 (defn all "grabs all posts from posts table with the most recent posts first" 
 	[] (jdbc/query database (sql/select * :posts (sql/order-by {:updated_date :desc}))))
+
+(defn top-posts "grabs all posts from the top_posts view which has an entry threshold of 3 likes"
+	[] (jdbc/query database (sql/select * :top_posts (sql/order-by {:updated_date :desc}))))
 
 (defn get-post "returns a map of the post when passed a valid id"
 	[id] (first (jdbc/query database
@@ -52,7 +55,9 @@
 	(jdbc/update! database :posts (merge {:updated_date now} params) (sql/where {:id id})))
 
 (defn get-comments [post-id]
-	(jdbc/query database (sql/select * :comments (sql/where {:post_id post-id}) (sql/order-by {:created_date :asc}))))
+	(jdbc/query database 
+		["select u.username as username, c.body as body, c.updated_date as updated_date from comments c
+		join users u on u.user_id=c.user_id where c.post_id=? order by created_date asc" post-id]))
 
 (defn get-comments-by-user "retrieve all of a user's comments"
 	[id] 
@@ -61,9 +66,9 @@
 (defn get-userid "get the user id for a username or get a new user id if that user does not yet exist"
 	;;will probably have to change after some authentication is in place, friend
 	[uname]
-	(if-let [uid (:user_id (first (jdbc/query database (sql/select :user_id :comments (sql/where {:username uname})))))] 
+	(if-let [uid (:user_id (first (jdbc/query database (sql/select :user_id :users (sql/where {:username uname})))))] 
 		uid ;; then
-		(inc (:user_id (first (jdbc/query database ["select max(user_id) as user_id from comments"]))))))
+		(do (jdbc/insert! database :users {:username uname :user_id 1}) (get-userid uname))))
 
 (defn like-post "add a like to a post using the name in the auth header and the passed post-id"
 	[id headers]
@@ -77,7 +82,8 @@
 
 (defn save-comment [post-id coment]
 	;;check for required fields here?
-	(jdbc/insert! database :comments (merge {:post_id post-id :created_date now :updated_date now :id (inc (maxmin-id :max "comments")) :user_id (get-userid (:username coment))} coment)))
+	(log/info "comment: " coment)
+	(jdbc/insert! database :comments {:post_id post-id :created_date now :updated_date now :id 0 :user_id (get-userid (coment :username)) :body (coment :body)}))
 
 (defn delete-comment [comment-id]
 	(jdbc/delete! database :comments (sql/where {:id comment-id})))
